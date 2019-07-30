@@ -53,6 +53,10 @@ RUN set -x \
   && cd .. \
   && rm -rf otp_src_${ERLANG_VERSION}
 
+# Copy Elixir patch
+COPY patch/elixir/fix-release-test.patch \
+     patch/fix-release-test.patch
+
 # Install Elixir
 RUN set -x \
   && localedef -i en_US -f UTF-8 en_US.UTF-8 \
@@ -66,9 +70,11 @@ RUN set -x \
   make \
   ncurses-devel \
   openssl-devel \
+  patch \
   wxBase \
   && git clone -b v${ELIXIR_VERSION} https://github.com/elixir-lang/elixir.git \
   && cd elixir \
+  && patch -p0 < ../patch/fix-release-test.patch \
   && export LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
   && make clean \
   && make test \
@@ -80,10 +86,12 @@ RUN set -x \
   java-1.8.0-openjdk-devel \
   ncurses-devel \
   openssl-devel \
+  patch \
   wxBase \
   && yum clean all -y \
   && cd .. \
-  && rm -rf elixir
+  && rm -rf elixir \
+  && rm -rf patch
 
 # Install node/npm
 RUN set -x \
